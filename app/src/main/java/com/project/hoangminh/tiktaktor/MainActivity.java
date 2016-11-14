@@ -33,7 +33,7 @@ public class MainActivity extends Activity {
     private Handler uiThreadHanler;
     private Bot1Handler bot1Handler = new Bot1Handler();
     private Bot2Handler bot2Handler = new Bot2Handler();
-//    private boolean restartWhilePlaying = false;
+
     private String[] board = {
                                 "", "", "",
                                 "", "", "",
@@ -51,43 +51,23 @@ public class MainActivity extends Activity {
             public void handleMessage(Message m) {
                 switch (m.what) {
                     case START:
-//                        try {
-//                            Thread.sleep(1000);
-//                        } catch (InterruptedException e) {
-//                            System.out.println("Thread interrupted!");
-//                        }
                         Message msgToStart = bot1Handler.obtainMessage(START);
                         bot1Handler.sendMessage(msgToStart);
                         break;
 
                     case BOT1_COMPLETE:
-//                        try {
-//                            Thread.sleep(1000);
-//                        } catch (InterruptedException e) {
-//                            System.out.println("Thread interrupted!");
-//                        }
                         writeBoard(m.arg1, "O");
                         updateCell(m.arg1, "O");
-//                        cells[m.arg1].setText("O");
                         info.setText("Bot 1 played");
                         count++;
-//                        try {
-//                            Thread.sleep(1000);
-//                        } catch (InterruptedException e) {
-//                            System.out.println("Thread interrupted!");
-//                        }
                         //code to check board
                         if(isWon()) {
                             isOver = true;
                             info.setText("Bot 1 won");
                             try {
-//                                bot1.interrupt();
-//                                bot2.interrupt();
                                 bot1Handler.removeCallbacksAndMessages(null);
                                 bot2Handler.removeCallbacksAndMessages(null);
                                 uiThreadHanler.removeCallbacksAndMessages(null);
-//                                bot1Handler.getLooper().quitSafely();
-//                                bot2Handler.getLooper().quitSafely();
                             } catch (SecurityException e) {
                                 System.out.println("Threads cannot be interrupted!");
                             }
@@ -99,13 +79,9 @@ public class MainActivity extends Activity {
                                 isOver = true;
                                 info.setText("Draw");
                                 try {
-//                                    bot1.interrupt();
-//                                    bot2.interrupt();
                                     bot1Handler.removeCallbacksAndMessages(null);
                                     bot2Handler.removeCallbacksAndMessages(null);
                                     uiThreadHanler.removeCallbacksAndMessages(null);
-//                                    bot1Handler.getLooper().quitSafely();
-//                                    bot2Handler.getLooper().quitSafely();
                                 } catch (SecurityException e) {
                                     System.out.println("Threads cannot be interrupted!");
                                 }
@@ -114,33 +90,18 @@ public class MainActivity extends Activity {
                         break;
 
                     case BOT2_COMPLETE:
-//                        try {
-//                            Thread.sleep(1000);
-//                        } catch (InterruptedException e) {
-//                            System.out.println("Thread interrupted!");
-//                        }
                         writeBoard(m.arg1, "X");
                         updateCell(m.arg1, "X");
-//                        cells[m.arg1].setText("X");
                         info.setText("Bot 2 played");
                         count++;
-//                        try {
-//                            Thread.sleep(1000);
-//                        } catch (InterruptedException e) {
-//                            System.out.println("Thread interrupted!");
-//                        }
                             //code to check board
                         if (isWon()) {
                             isOver = true;
                             info.setText("Bot 2 won");
                             try {
-//                                bot1.interrupt();
-//                                bot2.interrupt();
                                 bot1Handler.removeCallbacksAndMessages(null);
                                 bot2Handler.removeCallbacksAndMessages(null);
                                 uiThreadHanler.removeCallbacksAndMessages(null);
-//                                bot1Handler.getLooper().quitSafely();
-//                                bot2Handler.getLooper().quitSafely();
                             } catch (SecurityException e) {
                                 System.out.println("Threads cannot be interrupted!");
                             }
@@ -152,13 +113,9 @@ public class MainActivity extends Activity {
                                 isOver = true;
                                 info.setText("Draw");
                                 try {
-//                                    bot1.interrupt();
-//                                    bot2.interrupt();
                                     bot1Handler.removeCallbacksAndMessages(null);
                                     bot2Handler.removeCallbacksAndMessages(null);
                                     uiThreadHanler.removeCallbacksAndMessages(null);
-//                                    bot1Handler.getLooper().quitSafely();
-//                                    bot2Handler.getLooper().quitSafely();
                                 } catch (SecurityException e) {
                                     System.out.println("Threads cannot be interrupted!");
                                 }
@@ -178,7 +135,6 @@ public class MainActivity extends Activity {
                         for(int i = 0; i < 9; i++) {
                             writeBoard(i, "");
                             updateCell(i, "");
-//                            cells[i].setText("");
                         }
                         info.setText("Battle started!");
                         Message msgBot1Move = bot1Handler.obtainMessage(BOT1_MAKEMOVE);
@@ -230,74 +186,18 @@ public class MainActivity extends Activity {
                     info.setText("Battle started!");
                     button.setText("RESTART");
 
-//                    try {
-//                        Thread.sleep(1000);
-//                    } catch (InterruptedException e) {
-//                        System.out.println("Thread interrupted!");
-//                    }
-
                     Message msgToStart = uiThreadHanler.obtainMessage(START);
                     uiThreadHanler.sendMessage(msgToStart);
 
                 } else {
                     if(!isOver) {
-
                         //restart while playing
-//                        try {
-//                            bot1.interrupt();
-//                            bot2.interrupt();
-//                        } catch (SecurityException e) {
-//                            System.out.println("Threads cannot be interrupted!");
-//                        }
-//                        restartWhilePlaying = true;
                         uiThreadHanler.removeCallbacksAndMessages(null);
                         bot1Handler.removeCallbacksAndMessages(null);
                         bot2Handler.removeCallbacksAndMessages(null);
-//                        count = 0;
 
-//                        try {
-
-//                            bot1Handler.removeCallbacksAndMessages(null);
-//                            bot2Handler.removeCallbacksAndMessages(null);
-//                            bot1Handler.getLooper().quitSafely();
-//                            bot2Handler.getLooper().quitSafely();
-//                        } catch (SecurityException e) {
-//                            System.out.println("Threads cannot be interrupted!");
-//                        }
-//                        for(int i = 0; i < 9; i++) {
-//                            writeBoard(i, "");
-//                            cells[i].setText("");
-//                        }
-//                        bot1.start();
-//                        bot2.start();
-//                        bot1 = new Thread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                Looper.prepare();
-//                                bot1Handler = new Bot1Handler();
-//                                Looper.loop();
-//                            }
-//                        });
-//                        bot1.start();
-//                        bot2 = new Thread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                Looper.prepare();
-//                                bot2Handler = new Bot2Handler();
-//                                Looper.loop();
-//                            }
-//                        });
-//                        bot2.start();
-
-//                        info.setText("Battle started!");
-//                        try {
-//                            Thread.sleep(1000);
-//                        } catch (InterruptedException e) {
-//                            System.out.println("Thread interrupted!");
-//                        }
                         Message msgToRestart = bot1Handler.obtainMessage(RESTART);
                         bot1Handler.sendMessageAtFrontOfQueue(msgToRestart);
-//                        bot1Handler.sendMessage(msgToRestart);
                     } else {
                         //restart after game finishes
                         isOver = false;
@@ -305,38 +205,12 @@ public class MainActivity extends Activity {
                         for(int i = 0; i < 9; i++) {
                             writeBoard(i, "");
                             updateCell(i, "");
-//                            cells[i].setText("");
                         }
-//                        bot1.start();
-//                        bot2.start();
                         uiThreadHanler.removeCallbacksAndMessages(null);
                         bot1Handler.removeCallbacksAndMessages(null);
                         bot2Handler.removeCallbacksAndMessages(null);
 
-//                        bot1 = new Thread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                Looper.prepare();
-//                                bot1Handler = new Bot1Handler();
-//                                Looper.loop();
-//                            }
-//                        });
-//                        bot1.start();
-//                        bot2 = new Thread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                Looper.prepare();
-//                                bot2Handler = new Bot2Handler();
-//                                Looper.loop();
-//                            }
-//                        });
-//                        bot2.start();
                         info.setText("Battle started!");
-//                        try {
-//                            Thread.sleep(1000);
-//                        } catch (InterruptedException e) {
-//                            System.out.println("Thread interrupted!");
-//                        }
                         Message msgToRestart = uiThreadHanler.obtainMessage(START);
                         uiThreadHanler.sendMessage(msgToRestart);
                     }
@@ -373,12 +247,8 @@ public class MainActivity extends Activity {
                     msgToUI.arg1 = position;
                     uiThreadHanler.sendMessage(msgToUI);
                     break;
+
                 case RESTART:
-//                    try {
-//                        Thread.sleep(500);
-//                    } catch (InterruptedException e) {
-//                        System.out.println("Thread interrupted!");
-//                    }
                     bot1Handler.removeCallbacksAndMessages(null);
                     Message msgBot1RestartComplete = uiThreadHanler.obtainMessage(BOT1_RESTART_COMPLETE);
                     uiThreadHanler.sendMessageAtFrontOfQueue(msgBot1RestartComplete);
@@ -455,10 +325,16 @@ public class MainActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
         if(bot1.isAlive() && bot2.isAlive()) {
             try {
                 bot1.interrupt();
                 bot2.interrupt();
+                uiThreadHanler.removeCallbacksAndMessages(null);
                 bot1Handler.removeCallbacksAndMessages(null);
                 bot2Handler.removeCallbacksAndMessages(null);
                 bot1Handler.getLooper().quitSafely();
@@ -467,5 +343,6 @@ public class MainActivity extends Activity {
                 System.out.println("Threads cannot be interrupted!");
             }
         }
+        finish();
     }
 }
