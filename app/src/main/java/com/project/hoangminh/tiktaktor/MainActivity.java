@@ -15,6 +15,7 @@ import java.util.Random;
 
 public class MainActivity extends Activity {
 
+    //code for message
     public static final int START = 0;
     public static final int BOT1_COMPLETE = 1;
     public static final int BOT2_MAKEMOVE = 2;
@@ -47,14 +48,20 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //set the Handler for UI thread
         uiThreadHanler = new Handler() {
             public void handleMessage(Message m) {
                 switch (m.what) {
+                    //when it receives a message from UI thread to start game
+                    //it sends a message to bot1 handler
                     case START:
                         Message msgToStart = bot1Handler.obtainMessage(START);
                         bot1Handler.sendMessage(msgToStart);
                         break;
 
+                    //when it receives a message from bot1 that notify it has made a move
+                    //update the board and check for win, then notify bot1 and bot2's handler
+                    //depending on the outcome of check win
                     case BOT1_COMPLETE:
                         writeBoard(m.arg1, "O");
                         updateCell(m.arg1, "O");
@@ -89,6 +96,7 @@ public class MainActivity extends Activity {
                         }
                         break;
 
+                    //same as above when it receives message from bot2
                     case BOT2_COMPLETE:
                         writeBoard(m.arg1, "X");
                         updateCell(m.arg1, "X");
@@ -123,12 +131,17 @@ public class MainActivity extends Activity {
                         }
                         break;
 
+                    //when it receives message from bot1 that bot1 has completed job for restart
+                    //it removes all the pending messages in its queue
+                    //then notify bot2 to prepare for restart
                     case BOT1_RESTART_COMPLETE:
                         uiThreadHanler.removeCallbacksAndMessages(null);
                         Message msgBot2Restart = bot2Handler.obtainMessage(RESTART);
                         bot2Handler.sendMessageAtFrontOfQueue(msgBot2Restart);
                         break;
 
+                    //when it receives message from bot2 that bot2 has completed job for restart
+                    //it reset the game, and notify bot1 to start a new game
                     case BOT2_RESTART_COMPLETE:
                         uiThreadHanler.removeCallbacksAndMessages(null);
                         count = 0;
@@ -143,6 +156,7 @@ public class MainActivity extends Activity {
             }
         };
 
+        //get the textviews for all cells on the board
         cells[0] = (TextView) findViewById(R.id.cell0);
         cells[1] = (TextView) findViewById(R.id.cell1);
         cells[2] = (TextView) findViewById(R.id.cell2);
@@ -158,9 +172,12 @@ public class MainActivity extends Activity {
         info = (TextView) findViewById(R.id.info);
 
         button = (Button) findViewById(R.id.button);
+        //set click listener for START button
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //if the button has not been clicked before (complete new game)
+                //start the bots, and send message to bot1 to make a move
                 if(!isClicked) {
                     isClicked = true;
                     bot1 = new Thread(new Runnable() {
@@ -190,27 +207,33 @@ public class MainActivity extends Activity {
                     uiThreadHanler.sendMessage(msgToStart);
 
                 } else {
+                    //if button has already been clicked
                     if(!isOver) {
                         //restart while playing
+                        //remove all pending messages on 3 handlers
                         uiThreadHanler.removeCallbacksAndMessages(null);
                         bot1Handler.removeCallbacksAndMessages(null);
                         bot2Handler.removeCallbacksAndMessages(null);
 
+                        //send message to bot1 to do restart job
                         Message msgToRestart = bot1Handler.obtainMessage(RESTART);
                         bot1Handler.sendMessageAtFrontOfQueue(msgToRestart);
                     } else {
                         //restart after game finishes
+                        //reset variable
                         isOver = false;
                         count = 0;
                         for(int i = 0; i < 9; i++) {
                             writeBoard(i, "");
                             updateCell(i, "");
                         }
+                        //remove pending messages
                         uiThreadHanler.removeCallbacksAndMessages(null);
                         bot1Handler.removeCallbacksAndMessages(null);
                         bot2Handler.removeCallbacksAndMessages(null);
 
                         info.setText("Battle started!");
+                        //send message to bot1 to start
                         Message msgToRestart = uiThreadHanler.obtainMessage(START);
                         uiThreadHanler.sendMessage(msgToRestart);
                     }
@@ -219,11 +242,13 @@ public class MainActivity extends Activity {
         });
     }
 
+    //Class for Bot1 Handler
     public class Bot1Handler extends Handler {
         public void handleMessage(Message m) {
             int position;
             Message msgToUI = uiThreadHanler.obtainMessage(BOT1_COMPLETE);
             switch (m.what) {
+                //to start a game
                 case START:
                     try {
                         Thread.sleep(2000);
@@ -235,6 +260,7 @@ public class MainActivity extends Activity {
                     uiThreadHanler.sendMessage(msgToUI);
                     break;
 
+                //to make a move
                 case BOT1_MAKEMOVE:
                     try {
                         Thread.sleep(2000);
@@ -248,6 +274,7 @@ public class MainActivity extends Activity {
                     uiThreadHanler.sendMessage(msgToUI);
                     break;
 
+                //to restart
                 case RESTART:
                     bot1Handler.removeCallbacksAndMessages(null);
                     Message msgBot1RestartComplete = uiThreadHanler.obtainMessage(BOT1_RESTART_COMPLETE);
@@ -257,11 +284,13 @@ public class MainActivity extends Activity {
         }
     }
 
+    //Class for bot2 handler
     public class Bot2Handler extends Handler {
         public void handleMessage(Message m) {
             int position;
             Message msgToUI = uiThreadHanler.obtainMessage(BOT2_COMPLETE);
             switch (m.what) {
+                //to make a move
                 case BOT2_MAKEMOVE:
                     try {
                         Thread.sleep(2000);
@@ -275,6 +304,7 @@ public class MainActivity extends Activity {
                     uiThreadHanler.sendMessage(msgToUI);
                     break;
 
+                //to restart
                 case RESTART:
                     bot2Handler.removeCallbacksAndMessages(null);
                     Message msgBot2RestartComplete = uiThreadHanler.obtainMessage(BOT2_RESTART_COMPLETE);
@@ -284,29 +314,34 @@ public class MainActivity extends Activity {
         }
     }
 
+    //synchronized method to make sure access to board is safe
     public void writeBoard(int i, String s) {
         synchronized (board) {
             board[i] = s;
         }
     }
 
+    //same as above, this one is for UI
     public void updateCell(int i, String s) {
         synchronized (cells) {
             cells[i].setText(s);
         }
     }
 
+    //read the board
     public String readBoard(int i) {
         synchronized (board) {
             return board[i];
         }
     }
 
+    //generate random number between 0 and 8, inclusive
     public int genRand() {
         Random random = new Random();
         return random.nextInt(9);
     }
 
+    //check for win
     public boolean isWon(){
         if((readBoard(0).equals(readBoard(1)) && readBoard(1).equals(readBoard(2)) && !readBoard(0).equals("")) ||
                 (readBoard(3).equals(readBoard(4)) && readBoard(4).equals(readBoard(5)) && !readBoard(3).equals("")) ||
@@ -327,6 +362,7 @@ public class MainActivity extends Activity {
         super.onStop();
     }
 
+    //finish the activity on Pause
     @Override
     protected void onPause() {
         super.onPause();
